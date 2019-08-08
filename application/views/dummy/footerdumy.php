@@ -15,16 +15,25 @@
     array_push($dataLng, $dataInt->long);
   //   // echo "<br>";
   }
-  print_r($dataLng);
-  die();
+  // print_r($dataLng);
+  
 ?>
-    <div id="demo"></div>
+    <div id="demo34"></div>
     <script>
       setTimeout(function(){initMap(),location.reload()}, 120000);
       var map, heatmap;
       var gradient;
-      //var friska = <?php echo $z; ?>;
-      //document.getElementById("demo").innerHTML = friska; 
+
+
+      var arrayLat = [];
+      var arrayB = [];
+
+      <?php foreach ($dataLat as $key => $value) { ?>
+          arrayLat.push("<?php echo $value; ?>");    
+      <?php } ?>
+      document.getElementById("demo34").innerHTML = arrayLat;
+      console.log(arrayLat);
+
 
       function initMap() {
         var poly, geodesicPoly, heatmap;
@@ -39,8 +48,12 @@
         var latMark = []; var lngMark = [];
         var A = [];
         var arrayLat = [];
-        var lat = <?php echo $dataLat; ?>;
-        console.log(lat);
+        var lat = {}
+        
+        // console.log(lat);
+
+        
+        
         
         $.get('<?php echo site_url("TugasAkhir/dataJson")?>', function(data){
           var tempData = JSON.parse(data);
