@@ -1,21 +1,22 @@
 <?php
-  $url = 'http://localhost/website/friskawoman/index.php/AwanController';
+  $url = 'http://localhost/website/friskawoman/index.php/TugasAkhir/lihatData';
   $jsondata = file_get_contents($url);
   $dataJsonDecode = json_decode($jsondata);
   echo "<pre>";
   // print_r($dataJsonDecode);
-// die();
-  $dataPh = [];
-  $dataLat = [];
-  $dataLng = [];
-  foreach ($dataJsonDecode->data as $key => $dataInt) {
 
-    array_push($dataPh, $dataInt->ph);
-    array_push($dataLat, $dataInt->lat);
-    array_push($dataLng, $dataInt->long);
-  //   // echo "<br>";
+  // die();
+  $dataSemua = [];
+  foreach ($dataJsonDecode->data as $key => $dataInt) {
+    array_push($dataSemua, [
+      'ph' =>  $dataInt->ph, 
+      'lat' => $dataInt->lat, 
+      'lng' => str_replace(array("\n", "\r"), '', $dataInt->long)
+    ]);
   }
-  // print_r($dataLng);
+
+  // echo json_encode($dataSemua);
+  // die();
   
 ?>
     <div id="demo34"></div>
@@ -23,17 +24,6 @@
       setTimeout(function(){initMap(),location.reload()}, 120000);
       var map, heatmap;
       var gradient;
-
-
-      var arrayLat = [];
-      var arrayB = [];
-
-      <?php foreach ($dataLat as $key => $value) { ?>
-          arrayLat.push("<?php echo $value; ?>");    
-      <?php } ?>
-      document.getElementById("demo34").innerHTML = arrayLat;
-      console.log(arrayLat);
-
 
       function initMap() {
         var poly, geodesicPoly, heatmap;
@@ -48,18 +38,18 @@
         var latMark = []; var lngMark = [];
         var A = [];
         var arrayLat = [];
-        var lat = {}
-        
-        // console.log(lat);
+        var arrayLong = [];
+        var arrayPH = [];
 
-        
-        
-        
-        $.get('<?php echo site_url("TugasAkhir/dataJson")?>', function(data){
-          var tempData = JSON.parse(data);
-          var myData = JSON.parse(tempData['detail']);
-          console.log(myData)
-          
+        <?php foreach ($dataSemua as $key => $value) { ?>
+          arrayLat.push("<?php echo $value['lat']; ?>");   
+          arrayLong.push("<?php echo $value['lng']; ?>");   
+          arrayPH.push("<?php echo $value['ph']; ?>");   
+        <?php } ?>
+        // document.getElementById("demo34").innerHTML = arrayPH;
+        // console.log(arrayPH);
+                
+       
           var obMaps = {
             inMarker: marker,
             inMarkerInterpolate: markerinterpolasi,
@@ -169,66 +159,76 @@
           marker[1] = new google.maps.Marker({
             map: map,
             position: {
-              lat: parseFloat(myData[0].lat), 
-              lng: parseFloat(myData[0].lng)
+              lat: parseFloat(arrayLat[0]), 
+              lng: parseFloat(arrayLong[0])
             }
           });
 
           marker[2] = new google.maps.Marker({
             map: map,
             position: {
-              lat: parseFloat(myData[1].lat), 
-              lng: parseFloat(myData[1].lng)
+              lat: parseFloat(arrayLat[1]), 
+              lng: parseFloat(arrayLong[1])
             }
           });
 
-          // marker[3] = new google.maps.Marker({
-          //   map: map,
-          //   draggable: false,
-          //   position: {lat: parseFloat(myData[2].lat), lng: parseFloat(myData[2].lng)},
-          //   title: 'Stasiun 3'
-          // });
+          marker[3] = new google.maps.Marker({
+            map: map,
+            position: {
+              lat: parseFloat(arrayLat[2]), 
+              lng: parseFloat(arrayLong[2])
+            }
+          });
 
-          // marker[4] = new google.maps.Marker({
-          //   map: map,
-          //   draggable: false,
-          //   position: {lat: parseFloat(myData[3].lat), lng: parseFloat(myData[3].lng)},
-          //   title: 'Stasiun 4'
-          // });
+          marker[4] = new google.maps.Marker({
+            map: map,
+            position: {
+              lat: parseFloat(arrayLat[3]), 
+              lng: parseFloat(arrayLong[3])
+            }
+          });
 
           // marker[5] = new google.maps.Marker({
           //   map: map,
-          //   draggable: false,
-          //   position: {lat: parseFloat(myData[4].lat), lng: parseFloat(myData[4].lng)},
-          //   title: 'Stasiun 5'
+          //   position: {
+          //     lat: parseFloat(arrayLat[4]), 
+          //     lng: parseFloat(arrayLong[4])
+          //   }
           // });
-          
-          var 
-            popUp = "",
-            iterator = [1,2],
-            infowindows = []
 
-          iterator.forEach(function(data, index) {
-            popUp = 
-              '<div id="content"><div id="siteNotice"></div>'+
-              '<h1 id="firstHeading" class="firstHeading">Info Stasiun '+ data +'</h1>'+
-              '<div id="bodyContent">'+
-              '<p>Lat: '+ marker[data].getPosition().lat()+'</p>'+
-              '<p>Lng: '+ marker[data].getPosition().lng()+'</p>'+
-              '<p>Data A: '+parseFloat(myData[data-1].A)+'</p>'+
-              '<p>Last Update: '+tempData['waktu']+'.</p>'+
-              '</div>'+
-              '</div>';
-            infowindows[data] = new google.maps.InfoWindow({
-              content: popUp
-            });
-            marker[data].addListener('click', function() {
-              infowindows[data].open(map, marker[data]);
-            });
-          })
+          // marker[6] = new google.maps.Marker({
+          //   map: map,
+          //   position: {
+          //     lat: parseFloat(arrayLat[5]), 
+          //     lng: parseFloat(arrayLong[5])
+          //   }
+          // });
+
+          // var 
+          //   popUp = "",
+          //   iterator = [1,2],
+          //   infowindows = []
+
+          // iterator.forEach(function(data, index) {
+          //   popUp = 
+          //     '<div id="content"><div id="siteNotice"></div>'+
+          //     '<h1 id="firstHeading" class="firstHeading">Info Stasiun '+ data +'</h1>'+
+          //     '<div id="bodyContent">'+
+          //     '<p>Lat: '+ marker[arrayLat].getPosition().lat()+'</p>'+
+          //     '<p>Lng: '+ marker[arrayLong].getPosition().lng()+'</p>'+
+          //     '<p>Data A: '+parseFloat(arrayPH)+'</p>'+
+          //     '</div>'+
+          //     '</div>';
+          //   infowindows[data] = new google.maps.InfoWindow({
+          //     content: popUp
+          //   });
+          //   marker[data].addListener('click', function() {
+          //     infowindows[data].open(map, marker[data]);
+          //   });
+          // })
 
           for (var i = 1; i <= 2; i++) {
-            A[i] = parseFloat(myData[i-1].A);
+            A[i] = parseFloat(arrayPH);
             latMark[i] = marker[i].getPosition().lat();
             lngMark[i] = marker[i].getPosition().lng();
           }
@@ -341,7 +341,7 @@
             geodesic: true,
             map: map
           });
-        });
+        
 
       }
 

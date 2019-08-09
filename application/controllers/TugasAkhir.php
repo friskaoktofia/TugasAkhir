@@ -19,6 +19,29 @@ class TugasAkhir extends CI_Controller {
 		);
 	}
 
+	public function lihatData(){
+		$fn = fopen("http://localhost/website/friskawoman/TA2.txt","r");
+        
+        $response = array();
+        $response["data"] = array();
+        while(! feof($fn))  {
+            $result = fgets($fn);
+            $data = explode("," , $result);
+            $h['ph'] = $data[0];
+            $h['turbidity'] = $data[1];
+            $h['tds'] = $data[2];
+            $h['suhu'] = $data[3];
+            $h['lat'] = $data[4];
+            $h['long'] = $data[5];
+            array_push($response['data'], $h);
+        }
+
+        fclose($fn);
+        $dataJsonEncode = json_encode($response);
+        print_r($dataJsonEncode);
+        
+	}
+
 	public function index()
 	{
 		$page = array();
@@ -42,6 +65,7 @@ class TugasAkhir extends CI_Controller {
 		$this->load->view("pageweb", $this->data);
 		$this->load->view("dummy/footerdumy");
 	}
+	
 	public function suhu(){
 		$this->data["pages"]["suhu"]="active";
 		$this->load->view("template/header");
