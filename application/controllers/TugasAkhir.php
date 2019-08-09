@@ -32,14 +32,13 @@ class TugasAkhir extends CI_Controller {
             $h['tds'] = $data[2];
             $h['suhu'] = $data[3];
             $h['lat'] = $data[4];
-            $h['long'] = $data[5];
+            $h['long'] = str_replace(array("\n", "\r"), '', $data[5]);
             array_push($response['data'], $h);
-        }
+		}
 
         fclose($fn);
         $dataJsonEncode = json_encode($response);
         print_r($dataJsonEncode);
-        
 	}
 
 	public function index()

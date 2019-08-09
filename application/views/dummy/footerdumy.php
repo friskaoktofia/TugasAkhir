@@ -1,6 +1,5 @@
 <?php
   $url = base_url('index.php/TugasAkhir/lihatData');
-
   $jsondata = file_get_contents($url);
   $dataJsonDecode = json_decode($jsondata);
   echo "<pre>";
@@ -12,7 +11,7 @@
     array_push($dataSemua, [
       'ph' =>  $dataInt->ph, 
       'lat' => $dataInt->lat, 
-      'lng' => str_replace(array("\n", "\r"), '', $dataInt->long)
+      'lng' => $dataInt->long
     ]);
   }
 
@@ -47,7 +46,7 @@
           arrayLong.push("<?php echo $value['lng']; ?>");   
           arrayPH.push("<?php echo $value['ph']; ?>");   
         <?php } ?>
-        // document.getElementById("demo34").innerHTML = arrayPH;
+        document.getElementById("demo34").innerHTML = arrayLong;
         // console.log(arrayPH);
                 
        
@@ -157,76 +156,38 @@
           heatmap.set('gradient', gradient);
           heatmap.set('radius', 100);
 
-          marker[1] = new google.maps.Marker({
-            map: map,
-            position: {
-              lat: parseFloat(arrayLat[0]), 
-              lng: parseFloat(arrayLong[0])
-            }
-          });
+          for (i = 0; i < arrayLat.length; i++) {
+            marker[i+1] = new google.maps.Marker({
+              map: map,
+              position: {
+                lat: parseFloat(arrayLat[i]), 
+                lng: parseFloat(arrayLong[i])
+              }
+            });
+          }
 
-          marker[2] = new google.maps.Marker({
-            map: map,
-            position: {
-              lat: parseFloat(arrayLat[1]), 
-              lng: parseFloat(arrayLong[1])
-            }
-          });
+          var 
+            popUp = "",
+            iterator = [1,2,3,4,5],
+            infowindows = []
 
-          marker[3] = new google.maps.Marker({
-            map: map,
-            position: {
-              lat: parseFloat(arrayLat[2]), 
-              lng: parseFloat(arrayLong[2])
-            }
-          });
-
-          marker[4] = new google.maps.Marker({
-            map: map,
-            position: {
-              lat: parseFloat(arrayLat[3]), 
-              lng: parseFloat(arrayLong[3])
-            }
-          });
-
-          // marker[5] = new google.maps.Marker({
-          //   map: map,
-          //   position: {
-          //     lat: parseFloat(arrayLat[4]), 
-          //     lng: parseFloat(arrayLong[4])
-          //   }
-          // });
-
-          // marker[6] = new google.maps.Marker({
-          //   map: map,
-          //   position: {
-          //     lat: parseFloat(arrayLat[5]), 
-          //     lng: parseFloat(arrayLong[5])
-          //   }
-          // });
-
-          // var 
-          //   popUp = "",
-          //   iterator = [1,2],
-          //   infowindows = []
-
-          // iterator.forEach(function(data, index) {
-          //   popUp = 
-          //     '<div id="content"><div id="siteNotice"></div>'+
-          //     '<h1 id="firstHeading" class="firstHeading">Info Stasiun '+ data +'</h1>'+
-          //     '<div id="bodyContent">'+
-          //     '<p>Lat: '+ marker[arrayLat].getPosition().lat()+'</p>'+
-          //     '<p>Lng: '+ marker[arrayLong].getPosition().lng()+'</p>'+
-          //     '<p>Data A: '+parseFloat(arrayPH)+'</p>'+
-          //     '</div>'+
-          //     '</div>';
-          //   infowindows[data] = new google.maps.InfoWindow({
-          //     content: popUp
-          //   });
-          //   marker[data].addListener('click', function() {
-          //     infowindows[data].open(map, marker[data]);
-          //   });
-          // })
+            arrayPH.forEach(function(data, index) {
+              popUp = 
+                '<div id="content"><div id="siteNotice"></div>'+
+                '<h1 id="firstHeading" class="firstHeading">Titik '+ (index+1) +'</h1>'+
+                '<div id="bodyContent">'+
+                '<p>Lat: '+ arrayLat[index] +'</p>'+
+                '<p>Lng: '+ arrayLong[index] +'</p>'+
+                '<p>Data PH: '+ arrayPH[index] +'</p>'+
+                '</div>'+
+                '</div>';
+              infowindows[index+1] = new google.maps.InfoWindow({
+                content: popUp
+              });
+              marker[index+1].addListener('click', function() {
+                infowindows[index+1].open(map, marker[index+1]);
+              });
+            })
 
           for (var i = 1; i <= 2; i++) {
             A[i] = parseFloat(arrayPH);
