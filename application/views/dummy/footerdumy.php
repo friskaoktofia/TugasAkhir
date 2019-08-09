@@ -1,5 +1,6 @@
 <?php
-  $url = 'http://localhost/website/friskawoman/index.php/TugasAkhir/lihatData';
+  $url = base_url('index.php/TugasAkhir/lihatData');
+
   $jsondata = file_get_contents($url);
   $dataJsonDecode = json_decode($jsondata);
   echo "<pre>";
