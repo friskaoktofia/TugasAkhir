@@ -19,7 +19,6 @@
   // die();
   
 ?>
-    <div id="demo34"></div>
     <script>
       setTimeout(function(){initMap(),location.reload()}, 120000);
       var map, heatmap;
@@ -34,19 +33,24 @@
         var tempPeta;
         var tempA = [];
         var interpolatePeta;
-        var interpolateA;
+        var interpolateA = [];
         var latMark = []; var lngMark = [];
         var A = [];
         var arrayLat = [];
         var arrayLong = [];
         var arrayPH = [];
+        var jmlLat = [];
+        var jmlLng = [];
+        var laT = [];
+        var lnG = [];
+        var d = [];
 
         <?php foreach ($dataSemua as $key => $value) { ?>
           arrayLat.push("<?php echo $value['lat']; ?>");   
           arrayLong.push("<?php echo $value['lng']; ?>");   
           arrayPH.push("<?php echo $value['ph']; ?>");   
         <?php } ?>
-        document.getElementById("demo34").innerHTML = arrayLong;
+        //document.getElementById("demo34").innerHTML = arrayLong;
         // console.log(arrayPH);
                 
        
@@ -154,7 +158,14 @@
           });
 
           heatmap.set('gradient', gradient);
-          heatmap.set('radius', 100);
+          heatmap.set('radius', 50);
+
+          var iconInterpolasi = {
+            url: "<?php echo base_url('download.png')?>",
+            scaledSize: new google.maps.Size(1,1),
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(0,0)
+          }
 
           for (i = 0; i < arrayLat.length; i++) {
             marker[i+1] = new google.maps.Marker({
@@ -189,102 +200,111 @@
               });
             })
 
-          for (var i = 1; i <= 2; i++) {
+          for (var i = 1; i <= arrayLat.length; i++) {
             A[i] = parseFloat(arrayPH);
             latMark[i] = marker[i].getPosition().lat();
             lngMark[i] = marker[i].getPosition().lng();
           }
 
-          for (var i = 1; i <= 2; i++) {
-            if(A[i] >= 1.00 && A[i] <= 450.00)
+          for (var i = 1; i <= arrayLat.length; i++) {
+            if(A[i] == 7.00)
               {
                 //baik = hijau
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.1});
               } 
-              else if(A[i] >= 451.00 && A[i] <= 600.00)
+              else if(A[i] >= 8.00 && A[i] <= 14.00)
               {
                 //sedang = biru
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.2});
               }
-              else if(A[i] >= 601.00 && A[i] <= 1000.00)
+              else if(A[i] >= 3.00 && A[i] <= 6.00)
               {
                 //tidak sehat = kuning
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.3});
               }
-              else if(A[i] >= 1001.00 && A[i] <= 2500.00)
+              else if(A[i] < 3.00)
               {
                 //sangat tidak sehat = merah
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.4});
               }
-              else if(A[i] >= 2501.00)
-              {
-                //berbahaya = hitam
-                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.9});
-              }
+              // else if(A[i] >= 2501.00)
+              // {
+              //   //berbahaya = hitam
+              //   latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.9});
+              // }
           }
           
-          
-          for (var i = 1; i <= 2; i++) {
-            var addRange = 0.02;
-            tempPeta = latMark[i];
-            interpolateA = 0;
-            interpolatePeta = 0;
-            for (var j=1; j <= 50 ; j++) { 
-              //interpolateA = (A[i]*(1-addRange))+(A[i+1]*addRange);
-              //interpolatePeta = (lngMark[i]*(1-addRange))+(lngMark[i+1]*addRange);
-              interpolateA = interpolateA+ (A[i] * addRange); 
-              interpolatePeta = interpolatePeta + (latMark[i] * addRange);
+         for (var i = 1; i <= 2; i++){ 
+          for (var i = 1; i <= arrayLat.length; i++) {
+            // var addRange = 0.02;
+            // tempPeta = latMark[i];
+            // interpolateA = 0;
+            // interpolatePeta = 0;
+            // for (var j=1; j <= 50 ; j++) { 
+            //   //interpolateA = (A[i]*(1-addRange))+(A[i+1]*addRange);
+            //   //interpolatePeta = (lngMark[i]*(1-addRange))+(lngMark[i+1]*addRange);
+            //   interpolateA = interpolateA+ (A[i] * addRange); 
+            //   interpolatePeta = interpolatePeta + (latMark[i] * addRange);
 
-              addRange = addRange + 0.02;
+            //   addRange = addRange + 0.02;
+            jmlLat[i] = (latMark[i] + latMark[i+1])/2;
+            jmlLng[i] = (lngMark[i] + lngMark[i+1])/2;
+            laT[i] = Math.pow(jmlLat[i],2);
+            lnG[i] = Math.pow(jmlLng[i],2);
+            d[i] = Math.sqrt(laT[i]+lnG[i]);
+            interpolateA[i] = ((A[i]/d[i])+(A[i+1]/d[i]))/((1/d[i])+(1/d[i]));
 
-              markerinterpolasi[j] = new google.maps.Marker({
+              markerinterpolasi[i] = new google.maps.Marker({
                 map: map,
                 position: {
-                  lat: parseFloat(tempPeta), 
-                  lng: parseFloat(interpolatePeta)
+                  lat: parseFloat(jmlLat[i]), 
+                  lng: parseFloat(jmlLng[i])
                 },
-                //icon: iconInterpolasi
+                icon: iconInterpolasi
               });
 
-              latMarker[j] = markerinterpolasi[j].getPosition().lat();
-              lngMarker[j] = markerinterpolasi[j].getPosition().lng();
-              console.log(latMarker[j]+", "+lngMarker[j])
+              latMarker[i] = markerinterpolasi[i].getPosition().lat();
+              lngMarker[i] = markerinterpolasi[i].getPosition().lng();
+              console.log(latMarker[i]+", "+lngMarker[i])
               
-              if(interpolateA >= 1.00 && interpolateA <= 450.00)
+              if(interpolateA[i] == 7.00)
               {
                 //baik = hijau
-                console.log(interpolateA + ", baik");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.1});
+                console.log(interpolateA[i] + ", baik");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.1});
               } 
-              else if(interpolateA >= 451.00 && interpolateA <= 600.00)
+              else if(interpolateA[i] >= 8.00 && interpolateA[i] <= 14.00)
               {
                 //sedang = biru
-                console.log(interpolateA + ", sedang");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.2});
+                console.log(interpolateA[i] + ", sedang");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.2});
               }
-              else if(interpolateA >= 601.00 && interpolateA <= 1000.00)
+              else if(interpolateA[i] >= 3.00 && interpolateA[i] <= 6.00)
               {
                 //tidak sehat = kuning
-                console.log(interpolateA + ", tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.3});
+                console.log(interpolateA[i] + ", tidak sehat");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.3});
               }
-              else if(interpolateA >= 1001.00 && interpolateA <= 2500.00)
+              else if(interpolateA[i] < 3.00)
               {
                 //sangat tidak sehat = merah
-                console.log(interpolateA + ", sangat tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.4});
+                console.log(interpolateA[i] + ", sangat tidak sehat");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.4});
               }
-              else if(interpolateA >= 2501.00)
-              {
-                //berbahaya = hitam
-                console.log(interpolateA + ", berbahaya");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.9});
-              }
+              // else if(interpolateA >= 2501.00)
+              // {
+              //   //berbahaya = hitam
+              //   console.log(interpolateA + ", berbahaya");
+              //   latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.9});
+              // }
             }
-          }
+         }
+          
 
           var bounds = new google.maps.LatLngBounds();
-          var loc = new google.maps.LatLng(parseFloat(marker[1].getPosition()), parseFloat(marker[2].getPosition()));
+          for(var i = 1; i <= arrayLat.length; i++){
+          var loc = new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng());
+          }
           bounds.extend(loc);
           map.panToBounds(bounds);
           //map.fitBounds(bounds);

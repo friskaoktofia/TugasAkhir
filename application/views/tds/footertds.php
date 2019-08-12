@@ -1,3 +1,24 @@
+<?php
+  $url = base_url('index.php/TugasAkhir/lihatData');
+  $jsondata = file_get_contents($url);
+  $dataJsonDecode = json_decode($jsondata);
+  echo "<pre>";
+  // print_r($dataJsonDecode);
+
+  // die();
+  $dataSemua = [];
+  foreach ($dataJsonDecode->data as $key => $dataInt) {
+    array_push($dataSemua, [
+      'tds' =>  $dataInt->tds, 
+      'lat' => $dataInt->lat, 
+      'lng' => $dataInt->long
+    ]);
+  }
+
+  // echo json_encode($dataSemua);
+  // die();
+  
+?>
     <script>
       setTimeout(function(){initMap(),location.reload()}, 120000);
       var map, heatmap;
@@ -15,20 +36,30 @@
         var interpolateTDS;
         var latMark = []; var lngMark = [];
         var tds = [];
-        var vTDS = []; var uTDS = []; var hTDS = []; var bTDS = [];
-        var vPeta = []; var uPeta = []; var hPeta = []; var bPeta = [];
-        var zTDS = []; var zPeta = [];
-        var pers1TDS, pers2TDS, pers3TDS, pers4TDS;
-        var pers1Peta, pers2Peta, pers3Peta, pers4Peta;
-        var aTDS, invTDS;
-        var aPeta, invPeta;
-        zPeta[0] = 0; zPeta[4] = 0;
-        zTDS[0] = 0; zTDS[4] = 0;
+        var arrayLat = [];
+        var arrayLong = [];
+        var arrayTDS = [];
+        var jmlLat = [];
+        var jmlLng = [];
+        var laT = [];
+        var lnG = [];
+        var d = [];
+        // var vTDS = []; var uTDS = []; var hTDS = []; var bTDS = [];
+        // var vPeta = []; var uPeta = []; var hPeta = []; var bPeta = [];
+        // var zTDS = []; var zPeta = [];
+        // var pers1TDS, pers2TDS, pers3TDS, pers4TDS;
+        // var pers1Peta, pers2Peta, pers3Peta, pers4Peta;
+        // var aTDS, invTDS;
+        // var aPeta, invPeta;
+        // zPeta[0] = 0; zPeta[4] = 0;
+        // zTDS[0] = 0; zTDS[4] = 0;
         
-        $.get('<?php echo site_url("TugasAkhir/dataJson")?>', function(data){
-          var tempData = JSON.parse(data);
-          var myData = JSON.parse(tempData['detail']);
-          console.log(myData)
+        <?php foreach ($dataSemua as $key => $value) { ?>
+          arrayLat.push("<?php echo $value['lat']; ?>");   
+          arrayLong.push("<?php echo $value['lng']; ?>");   
+          arrayTDS.push("<?php echo $value['tds']; ?>");   
+        <?php } ?>
+
           var obMaps = {
             inMarker: marker,
             inMarkerInterpolate: markerinterpolasi,
@@ -133,216 +164,139 @@
           });
 
           heatmap.set('gradient', gradient);
-          heatmap.set('radius', 100);
+          heatmap.set('radius', 50);
 
-          // var iconSensor = {
-          //   url: "<?php echo base_url('iconfix.png')?>",
-          //   scaledSize: new google.maps.Size(18,25),
-          //   origin: new google.maps.Point(0,0),
-          //   anchor: new google.maps.Point(0,0)
-          // }
 
-          // var iconInterpolasi = {
-          //   url: "<?php echo base_url('ungu.png')?>",
-          //   scaledSize: new google.maps.Size(1,1),
-          //   origin: new google.maps.Point(0,0),
-          //   anchor: new google.maps.Point(0,0)
-          // }
+          var iconInterpolasi = {
+            url: "<?php echo base_url('download.png')?>",
+            scaledSize: new google.maps.Size(1,1),
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(0,0)
+          }
 
-          marker[1] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[0].lat), lng: parseFloat(myData[0].lng)},
-            // icon: iconSensor,
-            title: 'Stasiun 1'
-          });
+          for (i = 0; i < arrayLat.length; i++) {
+            marker[i+1] = new google.maps.Marker({
+              map: map,
+              position: {
+                lat: parseFloat(arrayLat[i]), 
+                lng: parseFloat(arrayLong[i])
+              }
+            });
+          }
 
-          marker[2] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[1].lat), lng: parseFloat(myData[1].lng)},
-            // icon: iconSensor,
-            title: 'Stasiun 2'
-          });
-
-          marker[3] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[2].lat), lng: parseFloat(myData[2].lng)},
-            // icon: iconSensor,
-            title: 'Stasiun 3'
-          });
-
-          marker[4] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[3].lat), lng: parseFloat(myData[3].lng)},
-            // icon: iconSensor,
-            title: 'Stasiun 4'
-          });
-
-          marker[5] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[4].lat), lng: parseFloat(myData[4].lng)},
-            // icon: iconSensor,
-            title: 'Stasiun 5'
-          });
-          
           var 
             popUp = "",
             iterator = [1,2,3,4,5],
             infowindows = []
 
-          iterator.forEach(function(data, index) {
+          arrayTDS.forEach(function(data, index) {
             popUp = 
               '<div id="content"><div id="siteNotice"></div>'+
-              '<h1 id="firstHeading" class="firstHeading">Info Stasiun '+ data +'</h1>'+
+              '<h1 id="firstHeading" class="firstHeading">Titik '+ (index+1) +'</h1>'+
               '<div id="bodyContent">'+
-              '<p>Lat: '+ marker[data].getPosition().lat()+'</p>'+
-              '<p>Lng: '+ marker[data].getPosition().lng()+'</p>'+
-              '<p>Data TDS: '+parseFloat(myData[data-1].tds)+'</p>'+
-              '<p>Last Update: '+tempData['waktu']+'.</p>'+
+              '<p>Lat: '+ arrayLat[index]+'</p>'+
+              '<p>Lng: '+ arrayLong[index]+'</p>'+
+              '<p>Data TDS: '+ arrayTDS[index]+'</p>'+
               '</div>'+
               '</div>';
-            infowindows[data] = new google.maps.InfoWindow({
+            infowindows[index+1] = new google.maps.InfoWindow({
               content: popUp
             });
-            marker[data].addListener('click', function() {
-              infowindows[data].open(map, marker[data]);
+            marker[index+1].addListener('click', function() {
+              infowindows[index+1].open(map, marker[index+1]);
             });
           })
 
-          for (var i = 0; i <= 4; i++) {
-            tds[i] = parseFloat(myData[i].tds);
-            latMark[i] = marker[i+1].getPosition().lat();
-            lngMark[i] = marker[i+1].getPosition().lng();
-            console.log(tds);
+          for (var i = 1; i <= arrayLat.length; i++) {
+            tds[i] = parseFloat(arrayTDS);
+            latMark[i] = marker[i].getPosition().lat();
+            lngMark[i] = marker[i].getPosition().lng();
           }
 
-          for (var i = 0; i <= 4; i++) {
+          for (var i = 1; i <= arrayLat.length; i++) {
             if(tds[i] <= 300.00)
               {
                 //baik = hijau
-                latLng.push({location: new google.maps.LatLng(marker[i+1].getPosition().lat(), marker[i+1].getPosition().lng()), weight: 0.1});
+                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.1});
               } 
               else if(tds[i] >= 301.00 && tds[i] <= 600.00)
               {
                 //sedang = biru
-                latLng.push({location: new google.maps.LatLng(marker[i+1].getPosition().lat(), marker[i+1].getPosition().lng()), weight: 0.2});
+                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.2});
               }
               else if(tds[i] >= 601.00 && tds[i] <= 900.00)
               {
                 //tidak sehat = kuning
-                latLng.push({location: new google.maps.LatLng(marker[i+1].getPosition().lat(), marker[i+1].getPosition().lng()), weight: 0.3});
+                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.3});
               }
               else if(tds[i] >= 901.00 && tds[i] <= 1200.00)
               {
                 //sangat tidak sehat = merah
-                latLng.push({location: new google.maps.LatLng(marker[i+1].getPosition().lat(), marker[i+1].getPosition().lng()), weight: 0.4});
+                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.4});
               }
           }
 
           
-          for (var i = 0; i <= 4; i++) {
-            hTDS[i] = (i+1) - i;
-            bTDS[i] = (1/hTDS[i])*(tds[i+1] - tds[i]);
+          for (var i = 1; i <= arrayLat.length; i++) {
 
-            hPeta[i] = lngMark[i+1] - lngMark[i];
-            bPeta[i] = (1/hPeta[i])*(latMark[i+1] - latMark[i]);
+            jmlLat[i] = (latMark[i] + latMark[i+1])/2;
+            jmlLng[i] = (lngMark[i] + lngMark[i+1])/2;
+            laT[i] = Math.pow(jmlLat[i],2);
+            lnG[i] = Math.pow(jmlLng[i],2);
+            d[i] = Math.sqrt(laT[i]+lnG[i]);
+            interpolateTDS = ((tds[i]/d[i])+(tds[i+1]/d[i]))/((1/d[i])+(1/d[i]));
 
-            if (i >= 1) {
-              vTDS[i] = 2*(hTDS[i-1] + hTDS[i]);
-              uTDS[i] = 6*(bTDS[i] - bTDS[i-1]);
-
-              vPeta[i] = 2*(hPeta[i-1] + hPeta[i]);
-              uPeta[i] = 6*(bPeta[i] - bPeta[i-1]);
-
-            }
-          }
-
-          aTDS = ((vTDS[1]*vTDS[2]*vTDS[3])-(vTDS[1]*hTDS[2]*hTDS[2])-(hTDS[2]*hTDS[1]*vTDS[3])).toFixed(2);
-          invTDS = (1/aTDS).toFixed(2);
-
-          aPeta = (vPeta[1]*vPeta[2]*vPeta[3])-(vPeta[1]*hPeta[2]*hPeta[2])-(hPeta[2]*hPeta[1]*vPeta[3]);
-          invPeta = 1/aPeta;
-
-          aPeta = (vPeta[1]*vPeta[2]*vPeta[3])-(vPeta[1]*hPeta[2]*hPeta[2])-(hPeta[2]*hPeta[1]*vPeta[3]);
-          invPeta = 1/aPeta;
-
-          zTDS[1] = (( invTDS*vTDS[1]*uTDS[1])+ (invTDS*hTDS[1]*uTDS[2])).toFixed(2);
-          zTDS[2] = (( invTDS*hTDS[1]*uTDS[1])+ (invTDS*vTDS[2]*uTDS[2])+ (invTDS*hTDS[2]*uTDS[3])).toFixed(2);
-          zTDS[3] = (( invTDS*hTDS[2]*uTDS[2])+ (invTDS*vTDS[3]*uTDS[3])).toFixed(2);
-
-          zPeta[1] = ((invPeta*vPeta[1]*uPeta[1])+(invPeta*hPeta[1]*uPeta[2])).toFixed(2);
-          zPeta[2] = ((invPeta*hPeta[1]*uPeta[1])+(invPeta*vPeta[2]*uPeta[2])+(invPeta*hPeta[2]*uPeta[3])).toFixed(2);
-          zPeta[3] = ((invPeta*hPeta[2]*uPeta[2])+(invPeta*vPeta[3]*uPeta[3])).toFixed(2);
-
-          var dividentPeta = parseFloat(0.000225 / 51);
-          
-          tempPeta = marker[1].getPosition().lng();
-
-          for (var i = 0; i <= 3; i++) {
-            tempTDS = i;
-
-            for (var j=1; j <= 51 ; j++) { 
-              tempTDS = tempTDS + 0.02;
-              pers1TDS = (zTDS[i+1]/(6*hTDS[i]))*((tempTDS-i)*(tempTDS-i)*(tempTDS-i));
-              pers2TDS = (zTDS[i]/(2*hTDS[i]))*((i-tempTDS)*(i-tempTDS)*(i-tempTDS));
-              pers3TDS = ((tds[i+1]/hTDS[i])-((zTDS[i+1]/6)*hTDS[i]))*(tempTDS-i);
-              pers4TDS = ((tds[i]/hTDS[i])-((hTDS[i]/6)*zTDS[i]))*((i+1)-tempTDS);
-              interpolateTDS = (pers1TDS + pers2TDS + pers3TDS + pers4TDS).toFixed(2);
-            
-              tempPeta = tempPeta + dividentPeta;
-              pers3Peta = (latMark[i+1]/hPeta[i])*(tempPeta-lngMark[i]);
-              pers4Peta = (latMark[i]/hPeta[i])*(lngMark[i+1]-tempPeta);
-              interpolatePeta = (pers3Peta + pers4Peta);
-
-              markerinterpolasi[j] = new google.maps.Marker({
+              markerinterpolasi[i] = new google.maps.Marker({
                 map: map,
                 draggable: false,
-                position: {lat: parseFloat(tempPeta), lng: parseFloat(interpolatePeta)}  
+                position: {
+                  lat: parseFloat(jmlLat[i]), 
+                  lng: parseFloat(jmlLng[i])
+                  },
+                  icon : iconInterpolasi 
               });
 
-              latMarker[j] = markerinterpolasi[j].getPosition().lat();
-              lngMarker[j] = markerinterpolasi[j].getPosition().lng();
-              console.log(latMarker[j]+", "+lngMarker[j])
+              latMarker[i] = markerinterpolasi[i].getPosition().lat();
+              lngMarker[i] = markerinterpolasi[i].getPosition().lng();
+              console.log(latMarker[i]+", "+lngMarker[i])
               
               if(interpolateTDS >= 1.00 && interpolateTDS <= 300.00)
               {
                 //baik = hijau
                 console.log(interpolateTDS + ", baik");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.1});
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.1});
               } 
               else if(interpolateTDS >= 301.00 && interpolateTDS <= 600.00)
               {
                 //sedang = biru
                 console.log(interpolateTDS + ", sedang");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.2});
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.2});
               }
               else if(interpolateTDS >= 601.00 && interpolateTDS <= 900.00)
               {
                 //tidak sehat = kuning
                 console.log(interpolateTDS + ", tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.3});
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.3});
               }
               else if(interpolateTDS >= 901.00 && interpolateTDS <= 1200.00)
               {
                 //sangat tidak sehat = merah
                 console.log(interpolateTDS + ", sangat tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.4});
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.4});
               }
               else if(interpolateTDS >= 1201.00)
               {
                 //berbahaya = hitam
                 console.log(interpolateTDS + ", berbahaya");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.9});
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.9});
               }
-            }
+            
           }
 
           var bounds = new google.maps.LatLngBounds();
-          var loc = new google.maps.LatLng(parseFloat(marker[1].getPosition()), parseFloat(marker[2].getPosition()), parseFloat(marker[3].getPosition()), parseFloat(marker[4].getPosition()), parseFloat(marker[5].getPosition()));
+          for(var i = 1; i <= arrayLat.length; i++){
+          var loc = new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng());
+          }
           bounds.extend(loc);
           map.panToBounds(bounds);
           //map.fitBounds(bounds);
@@ -361,8 +315,7 @@
             geodesic: true,
             map: map
           });
-        });
-
+      
       }
 
     </script>
