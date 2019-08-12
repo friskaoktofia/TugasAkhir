@@ -1,2 +1,5 @@
 /application/config/
 /application/config/config.php
+application/config/
+application/config/config.php
+*/config/*.php
