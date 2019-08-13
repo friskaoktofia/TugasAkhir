@@ -1,4 +1,25 @@
-<script>
+<?php
+  $url = base_url('index.php/TugasAkhir/lihatData');
+  $jsondata = file_get_contents($url);
+  $dataJsonDecode = json_decode($jsondata);
+  echo "<pre>";
+  // print_r($dataJsonDecode);
+
+  // die();
+  $dataSemua = [];
+  foreach ($dataJsonDecode->data as $key => $dataInt) {
+    array_push($dataSemua, [
+      'turbidity' =>  $dataInt->turbidity, 
+      'lat' => $dataInt->lat, 
+      'lng' => $dataInt->long
+    ]);
+  }
+
+  // echo json_encode($dataSemua);
+  // die();
+  
+?>
+    <script>
       setTimeout(function(){initMap(),location.reload()}, 120000);
       var map, heatmap;
       var gradient;
@@ -10,16 +31,26 @@
         var marker = [];
         var latLng = [];
         var tempPeta;
-        var tempTurbidity = [];
+        var tempPH = [];
         var interpolatePeta;
-        var interpolateTurbidity;
+        var interpolateTurbi;
         var latMark = []; var lngMark = [];
-        var turbidity = [];
+        var turbi = [];
+        var arrayLat = [];
+        var arrayLong = [];
+        var arrayTurbi = [];
+        var jmlLat = [];
+        var jmlLng = [];
+        var laT = [];
+        var lnG = [];
+        var d = [];
         
-        $.get('<?php echo site_url("TugasAkhir/dataJson")?>', function(data){
-          var tempData = JSON.parse(data);
-          var myData = JSON.parse(tempData['detail']);
-          console.log(myData)
+        <?php foreach ($dataSemua as $key => $value) { ?>
+          arrayLat.push("<?php echo $value['lat']; ?>");   
+          arrayLong.push("<?php echo $value['lng']; ?>");   
+          arrayTurbi.push("<?php echo $value['turbidity']; ?>");   
+        <?php } ?>
+
           var obMaps = {
             inMarker: marker,
             inMarkerInterpolate: markerinterpolasi,
@@ -124,165 +155,133 @@
           });
 
           heatmap.set('gradient', gradient);
-          heatmap.set('radius', 100);
+          heatmap.set('radius', 50);
 
-         
-          // var iconInterpolasi = {
-          //   url: "<?php echo base_url('ungu.png')?>",
-          //   scaledSize: new google.maps.Size(1,1),
-          //   origin: new google.maps.Point(0,0),
-          //   anchor: new google.maps.Point(0,0)
-          // //}
 
-          marker[1] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[0].lat), lng: parseFloat(myData[0].lng)},
-            title: 'Stasiun 1'
-          });
+          var iconInterpolasi = {
+            url: "<?php echo base_url('download.png')?>",
+            scaledSize: new google.maps.Size(1,1),
+            origin: new google.maps.Point(0,0),
+            anchor: new google.maps.Point(0,0)
+          }
 
-          marker[2] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[1].lat), lng: parseFloat(myData[1].lng)},
-            title: 'Stasiun 2'
-          });
+          for (i = 0; i < arrayLat.length; i++) {
+            marker[i+1] = new google.maps.Marker({
+              map: map,
+              position: {
+                lat: parseFloat(arrayLat[i]), 
+                lng: parseFloat(arrayLong[i])
+              }
+            });
+          }
 
-          marker[3] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[2].lat), lng: parseFloat(myData[2].lng)},
-            title: 'Stasiun 3'
-          });
-
-          marker[4] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[3].lat), lng: parseFloat(myData[3].lng)},
-            title: 'Stasiun 4'
-          });
-
-          marker[5] = new google.maps.Marker({
-            map: map,
-            draggable: false,
-            position: {lat: parseFloat(myData[4].lat), lng: parseFloat(myData[4].lng)},
-            title: 'Stasiun 5'
-          });
-          
           var 
             popUp = "",
             iterator = [1,2,3,4,5],
             infowindows = []
 
-          iterator.forEach(function(data, index) {
+          arrayTurbi.forEach(function(data, index) {
             popUp = 
               '<div id="content"><div id="siteNotice"></div>'+
-              '<h1 id="firstHeading" class="firstHeading">Info Stasiun '+ data +'</h1>'+
+              '<h1 id="firstHeading" class="firstHeading">Titik '+ (index+1) +'</h1>'+
               '<div id="bodyContent">'+
-              '<p>Lat: '+ marker[data].getPosition().lat()+'</p>'+
-              '<p>Lng: '+ marker[data].getPosition().lng()+'</p>'+
-              '<p>Data Turbidity: '+parseFloat(myData[data-1].turbidity)+'</p>'+
-              '<p>Last Update: '+tempData['waktu']+'.</p>'+
+              '<p>Lat: '+ arrayLat[index]+'</p>'+
+              '<p>Lng: '+ arrayLong[index]+'</p>'+
+              '<p>Data TDS: '+ arrayTurbi[index]+'</p>'+
               '</div>'+
               '</div>';
-            infowindows[data] = new google.maps.InfoWindow({
+            infowindows[index+1] = new google.maps.InfoWindow({
               content: popUp
             });
-            marker[data].addListener('click', function() {
-              infowindows[data].open(map, marker[data]);
+            marker[index+1].addListener('click', function() {
+              infowindows[index+1].open(map, marker[index+1]);
             });
           })
 
-          for (var i = 1; i <= 5; i++) {
-            turbidity[i] = parseFloat(myData[i-1].turbidity);
+          for (var i = 1; i <= arrayLat.length; i++) {
+            turbi[i] = parseFloat(arrayTurbi);
             latMark[i] = marker[i].getPosition().lat();
             lngMark[i] = marker[i].getPosition().lng();
           }
 
-          for (var i = 1; i <= 5; i++) {
-            if(turbidity[i] >= 1.00 && turbidity[i] <= 450.00)
+          for (var i = 1; i <= arrayLat.length; i++) {
+            if(turbi[i] >= 10.00 && turbi[i] <= 15.00)
               {
                 //baik = hijau
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.1});
               } 
-              else if(turbidity[i] >= 451.00 && turbidity[i] <= 600.00)
+              else if(turbi[i] >= 16.00 && turbi[i] <= 25.00)
               {
                 //sedang = biru
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.2});
               }
-              else if(turbidity[i] >= 601.00 && trbidity[i] <= 1000.00)
+              else if(turbi[i] >= 26.00 && turbi[i] <= 50.00)
               {
                 //tidak sehat = kuning
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.3});
               }
-              else if(turbidity[i] >= 1001.00 && turbidity[i] <= 2500.00)
+              else if(turbi[i] < 50.00)
               {
                 //sangat tidak sehat = merah
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.4});
               }
-              else if(turbidity[i] >= 2501.00)
-              {
-                //berbahaya = hitam
-                latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.9});
-              }
           }
+        
+            for (var i = 1; i <= arrayLat.length; i++) {
+                  jmlLat[i] = (latMark[i] + latMark[i+1])/2;
+                  jmlLng[i] = (lngMark[i] + lngMark[i+1])/2;
+                  laT[i] = Math.pow(jmlLat[i],2);
+                  lnG[i] = Math.pow(jmlLng[i],2);
+                  d[i] = Math.sqrt(laT[i]+lnG[i]);
+                  interpolateTurbi = ((turbi[i]/d[i])+(turbi[i+1]/d[i]))/((1/d[i])+(1/d[i]));
+     
 
-          var addRange = 0.02;
-          for (var i = 1; i <= 5; i++) {
-            tempPeta = latMark[i];
-            for (var j=1; j <= 50 ; j++) { 
-              interpolateTurbidity = (turbidity[i]*(1-addRange))+(turbidity[i+1]*addRange);
-            
-              interpolatePeta = (lngMark[i]*(1-addRange))+(lngMark[i+1]*addRange);
-              
-              addRange = addRange + 0.02;
-
-              markerinterpolasi[j] = new google.maps.Marker({
+              markerinterpolasi[i] = new google.maps.Marker({
                 map: map,
                 draggable: false,
-                position: {lat: parseFloat(tempPeta), lng: parseFloat(interpolatePeta)},
-                //icon: iconInterpolasi
+                position: {
+                  lat: parseFloat(jmlLat[i]), 
+                  lng: parseFloat(jmlLng[i])
+                  },
+                  icon : iconInterpolasi 
               });
 
-              latMarker[j] = markerinterpolasi[j].getPosition().lat();
-              lngMarker[j] = markerinterpolasi[j].getPosition().lng();
-              console.log(latMarker[j]+", "+lngMarker[j])
+              latMarker[i] = markerinterpolasi[i].getPosition().lat();
+              lngMarker[i] = markerinterpolasi[i].getPosition().lng();
+              console.log(latMarker[i]+", "+lngMarker[i])
               
-              if(interpolateTurbidity >= 1.00 && interpolateTurbidity <= 450.00)
+              if(interpolateTurbi == 7.00)
               {
                 //baik = hijau
-                console.log(interpolateTurbidity + ", baik");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.1});
+                console.log(interpolateTurbi + ", baik");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.1});
               } 
-              else if(interpolateTurbidity >= 451.00 && interpolateTurbidity <= 600.00)
+              else if(interpolateTurbi >= 8.00 && interpolateTurbi <= 13.00)
               {
                 //sedang = biru
-                console.log(interpolateTurbidity + ", sedang");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.2});
+                console.log(interpolateTurbi + ", sedang");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.2});
               }
-              else if(interpolateTurbidity >= 601.00 && interpolateTurbidity <= 1000.00)
+              else if(interpolateTurbi >= 4.00 && interpolateTurbi <= 6.00)
               {
                 //tidak sehat = kuning
-                console.log(interpolateTrbidity + ", tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.3});
+                console.log(interpolateTurbi + ", tidak sehat");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.3});
               }
-              else if(interpolateTurbidity >= 1001.00 && interpolateTurbidity <= 2500.00)
+              else if(interpolateTurbi < 4.00)
               {
                 //sangat tidak sehat = merah
-                console.log(interpolateTurbidity + ", sangat tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.4});
+                console.log(interpolateTurbi + ", sangat tidak sehat");
+                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.4});
               }
-              else if(interpolateTurbidity >= 2501.00)
-              {
-                //berbahaya = hitam
-                console.log(interpolateTurbidity + ", berbahaya");
-                latLng.push({location: new google.maps.LatLng(latMarker[j], lngMarker[j]), weight: 0.9});
-              }
-            }
+           
           }
+        
 
           var bounds = new google.maps.LatLngBounds();
-          var loc = new google.maps.LatLng(parseFloat(marker[1].getPosition()), parseFloat(marker[2].getPosition()), parseFloat(marker[3].getPosition()), parseFloat(marker[4].getPosition()), parseFloat(marker[5].getPosition()));
+          for(var i = 1; i <= arrayLat.length; i++){
+          var loc = new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng());
+          }
           bounds.extend(loc);
           map.panToBounds(bounds);
           //map.fitBounds(bounds);
@@ -301,8 +300,7 @@
             geodesic: true,
             map: map
           });
-        });
-
+      
       }
 
     </script>

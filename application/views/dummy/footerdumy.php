@@ -39,11 +39,11 @@
         var arrayLat = [];
         var arrayLong = [];
         var arrayPH = [];
-        var jmlLat = [];
-        var jmlLng = [];
-        var laT = [];
-        var lnG = [];
-        var d = [];
+        var jmlLat;
+        var jmlLng;
+        var laT;
+        var lnG;
+        var d;
         
         <?php foreach ($dataSemua as $key => $value) { ?>
           arrayLat.push("<?php echo $value['lat']; ?>");   
@@ -226,65 +226,140 @@
                 latLng.push({location: new google.maps.LatLng(marker[i].getPosition().lat(), marker[i].getPosition().lng()), weight: 0.4});
               }
           }
+        
+        var arrayPH1 = parseFloat(arrayPH);
+        var arrayLat1 = arrayLat;
+        var arrayLng1 = arrayLong;
+        var arrayPH2 = [];
+        var arrayLat2 = [];
+        var arrayLng2 = [];
+        var hitungA = 0;
+        
+        for(var j = 0; j < 2; j++){
+          for(var i = 0; i <= arrayLat.length-1; i++){
+            if (i = 1){
+            jmlLat = (latMark[i] + latMark[i+1])/2;
+            jmlLng = (lngMark[i] + lngMark[i+1])/2;
+            laT = Math.pow(jmlLat[i],2);
+            lnG = Math.pow(jmlLng[i],2);
+            d = Math.sqrt(laT[i]+lnG[i]);
+            interpolateA = ((A[i]/d[i])+(A[i+1]/d[i]))/((1/d[i])+(1/d[i]));
 
-        for(var j = 1; j <= 2; j++) { 
-          console.log("pika")
-            for (var i = 1; i <= arrayLat.length; i++) {
+            arrayLat2[hitungA] = latMark[i];
+            arrayLng2[hitungA] = lngMark[i];
+            arrayPH2[hitungA] = A[i];
+            hitungA = hitungA + 1;
 
-                jmlLat[i] = (latMark[i] + latMark[i+1])/2;
-                jmlLng[i] = (lngMark[i] + lngMark[i+1])/2;
-                laT[i] = Math.pow(jmlLat[i],2);
-                lnG[i] = Math.pow(jmlLng[i],2);
-                d[i] = Math.sqrt(laT[i]+lnG[i]);
-                interpolateA = ((A[i]/d[i])+(A[i+1]/d[i]))/((1/d[i])+(1/d[i]));
+            arrayLat2[hitungA] = jmlLat;
+            arrayLng2[hitungA] = jmlLng;
+            arrayPH2[hitungA] = interpolateA;
+            hitungA = hitungA + 1;
 
-              markerinterpolasi[i] = new google.maps.Marker({
-                map: map,
-                draggable: false,
-                position: {
-                  lat: parseFloat(jmlLat[i]), 
-                  lng: parseFloat(jmlLng[i])
-                  },
-                  icon : iconInterpolasi 
-              });
+            arrayLat2[hitungA] = latMark[i+1];
+            arrayLat2[hitungA] = lngMark[i+1];
+            arrayPH2[hitungA] = A[i+1];
+            hitungA = hitungA + 1;
 
-              latMarker[i] = markerinterpolasi[i].getPosition().lat();
-              lngMarker[i] = markerinterpolasi[i].getPosition().lng();
-              console.log(latMarker[i]+", "+lngMarker[i])
-              
-              if(interpolateA == 7.00)
-              {
-                //baik = hijau
-                console.log(interpolateA + ", baik");
-                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.1});
-              } 
-              else if(interpolateA >= 8.00 && interpolateA <= 13.00)
-              {
-                //sedang = biru
-                console.log(interpolateA + ", sedang");
-                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.2});
-              }
-              else if(interpolateA >= 4.00 && interpolateA <= 6.00)
-              {
-                //tidak sehat = kuning
-                console.log(interpolateA + ", tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.3});
-              }
-              else if(interpolateA < 4.00)
-              {
-                //sangat tidak sehat = merah
-                console.log(interpolateA + ", sangat tidak sehat");
-                latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.4});
-              }
-            //   else if(interpolateTDS >= 1201.00)
-            //   {
-            //     //berbahaya = hitam
-            //     console.log(interpolateTDS + ", berbahaya");
-            //     latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.9});
-            //   }
-            
+            }
+            else{
+            arrayLat2[hitungA] = jmlLat;
+            arrayLng2[hitungA] = jmlLng;
+            arrayPH2[hitungA] = interpolateA;
+            hitungA = hitungA+ 1;
+
+            arrayLat2[hitungA] = latMark[i+1];
+            arrayLat2[hitungA] = lngMark[i+1];
+            arrayPH2[hitungA] = A[i+1];
+            hitungA = hitungA + 1;
+            }
           }
         }
+        
+        // for(var j = 1; j <= 2; j++) { 
+        //     for (var i = 1; i <= arrayLat.length-1; i++) {
+        //         if (i = 1){
+        //           jmlLat = (latMark[i] + latMark[i+1])/2;
+        //           jmlLng = (lngMark[i] + lngMark[i+1])/2;
+        //           laT = Math.pow(jmlLat[i],2);
+        //           lnG = Math.pow(jmlLng[i],2);
+        //           d = Math.sqrt(laT[i]+lnG[i]);
+        //           interpolateA = ((A[i]/d[i])+(A[i+1]/d[i]))/((1/d[i])+(1/d[i]));
+
+        //           arrayLat2[hitungA] = latMark[i];
+        //           arrayLng2[hitungA] = lngMark[i];
+        //           arrayPH2[hitungA] = A[i];
+        //           hitungA = hitungA + 1;
+
+        //           arrayLat2[hitungA] = jmlLat;
+        //           arrayLng2[hitungA] = jmlLng;
+        //           arrayPH2[hitungA] = interpolateA;
+        //           hitungA = hitungA + 1;
+
+        //           arrayLat2[hitungA] = latMark[i+1];
+        //           arrayLat2[hitungA] = lngMark[i+1];
+        //           arrayPH2[hitungA] = A[i+1];
+        //           hitungA = hitungA + 1;
+
+        //         }
+        //         else{
+        //           arrayLat2[hitungA] = jmlLat;
+        //           arrayLng2[hitungA] = jmlLng;
+        //           arrayPH2[hitungA] = interpolateA;
+        //           hitungA = hitungA+ 1;
+
+        //           arrayLat2[hitungA] = latMark[i+1];
+        //           arrayLat2[hitungA] = lngMark[i+1];
+        //           arrayPH2[hitungA] = A[i+1];
+        //           hitungA = hitungA + 1;
+        //         }
+
+        //       markerinterpolasi[i] = new google.maps.Marker({
+        //         map: map,
+        //         draggable: false,
+        //         position: {
+        //           lat: parseFloat(jmlLat[i]), 
+        //           lng: parseFloat(jmlLng[i])
+        //           },
+        //           icon : iconInterpolasi 
+        //       });
+
+        //       latMarker[i] = markerinterpolasi[i].getPosition().lat();
+        //       lngMarker[i] = markerinterpolasi[i].getPosition().lng();
+        //       console.log(latMarker[i]+", "+lngMarker[i])
+              
+        //       if(interpolateA == 7.00)
+        //       {
+        //         //baik = hijau
+        //         console.log(interpolateA + ", baik");
+        //         latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.1});
+        //       } 
+        //       else if(interpolateA >= 8.00 && interpolateA <= 13.00)
+        //       {
+        //         //sedang = biru
+        //         console.log(interpolateA + ", sedang");
+        //         latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.2});
+        //       }
+        //       else if(interpolateA >= 4.00 && interpolateA <= 6.00)
+        //       {
+        //         //tidak sehat = kuning
+        //         console.log(interpolateA + ", tidak sehat");
+        //         latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.3});
+        //       }
+        //       else if(interpolateA < 4.00)
+        //       {
+        //         //sangat tidak sehat = merah
+        //         console.log(interpolateA + ", sangat tidak sehat");
+        //         latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.4});
+        //       }
+        //     //   else if(interpolateTDS >= 1201.00)
+        //     //   {
+        //     //     //berbahaya = hitam
+        //     //     console.log(interpolateTDS + ", berbahaya");
+        //     //     latLng.push({location: new google.maps.LatLng(latMarker[i], lngMarker[i]), weight: 0.9});
+        //     //   }
+            
+        //   }
+        // }
 
           var bounds = new google.maps.LatLngBounds();
           for(var i = 1; i <= arrayLat.length; i++){

@@ -20,7 +20,7 @@ class TugasAkhir extends CI_Controller {
 	}
 
 	public function lihatData(){
-		$fn = fopen(base_url('TA2.txt'),"r");
+		$fn = fopen(base_url('TA3.txt'),"r");
         
         $response = array();
         $response["data"] = array();
