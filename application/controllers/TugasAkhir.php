@@ -19,6 +19,13 @@ class TugasAkhir extends CI_Controller {
 		);
 	}
 
+	public function awan(){
+		$this->data["pages"]["dummy"] = "active";
+		$this->load->view("template/header");
+		$this->load->view("pageweb", $this->data);
+		$this->load->view("dummy/awan");
+	}
+
 	public function lihatData(){
 		$fn = fopen(base_url('TA3.txt'),"r");
         

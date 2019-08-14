@@ -2,10 +2,6 @@
   $url = base_url('index.php/TugasAkhir/lihatData');
   $jsondata = file_get_contents($url);
   $dataJsonDecode = json_decode($jsondata);
-  echo "<pre>";
-  // print_r($dataJsonDecode);
-
-  // die();
   $dataSemua = [];
   foreach ($dataJsonDecode->data as $key => $dataInt) {
     array_push($dataSemua, [
@@ -14,10 +10,6 @@
       'lng' => $dataInt->long
     ]);
   }
-
-  // echo json_encode($dataSemua);
-  // die();
-  
 ?>
     <script>
       setTimeout(function(){initMap(),location.reload()}, 120000);
@@ -157,7 +149,6 @@
           heatmap.set('gradient', gradient);
           heatmap.set('radius', 50);
 
-
           var iconInterpolasi = {
             url: "<?php echo base_url('download.png')?>",
             scaledSize: new google.maps.Size(1,1),
@@ -235,49 +226,10 @@
         var arrayLng2 = [];
         var hitungA = 0;
         
-        for(var j = 0; j < 2; j++){
-          for(var i = 0; i <= arrayLat.length-1; i++){
-            if (i = 1){
-            jmlLat = (latMark[i] + latMark[i+1])/2;
-            jmlLng = (lngMark[i] + lngMark[i+1])/2;
-            laT = Math.pow(jmlLat[i],2);
-            lnG = Math.pow(jmlLng[i],2);
-            d = Math.sqrt(laT[i]+lnG[i]);
-            interpolateA = ((A[i]/d[i])+(A[i+1]/d[i]))/((1/d[i])+(1/d[i]));
-
-            arrayLat2[hitungA] = latMark[i];
-            arrayLng2[hitungA] = lngMark[i];
-            arrayPH2[hitungA] = A[i];
-            hitungA = hitungA + 1;
-
-            arrayLat2[hitungA] = jmlLat;
-            arrayLng2[hitungA] = jmlLng;
-            arrayPH2[hitungA] = interpolateA;
-            hitungA = hitungA + 1;
-
-            arrayLat2[hitungA] = latMark[i+1];
-            arrayLat2[hitungA] = lngMark[i+1];
-            arrayPH2[hitungA] = A[i+1];
-            hitungA = hitungA + 1;
-
-            }
-            else{
-            arrayLat2[hitungA] = jmlLat;
-            arrayLng2[hitungA] = jmlLng;
-            arrayPH2[hitungA] = interpolateA;
-            hitungA = hitungA+ 1;
-
-            arrayLat2[hitungA] = latMark[i+1];
-            arrayLat2[hitungA] = lngMark[i+1];
-            arrayPH2[hitungA] = A[i+1];
-            hitungA = hitungA + 1;
-            }
-          }
-        }
         
         // for(var j = 1; j <= 2; j++) { 
         //     for (var i = 1; i <= arrayLat.length-1; i++) {
-        //         if (i = 1){
+        //         if (i == 1){
         //           jmlLat = (latMark[i] + latMark[i+1])/2;
         //           jmlLng = (lngMark[i] + lngMark[i+1])/2;
         //           laT = Math.pow(jmlLat[i],2);
